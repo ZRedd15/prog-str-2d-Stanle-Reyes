@@ -19,7 +19,7 @@ public class PersonServices {
             String name = parts[0].trim(); // Obtiee el nombre del arreglo
             String correo = parts[1].trim(); //Obtiene el correo del arreglo
             String edad = parts[2].trim(); //Obtiene la edad
-            result.add(name+"-"+correo+"-"+edad);//Se agrega a la lista de resultados con el formato
+            result.add(name+" - "+correo+" - "+edad);//Se agrega a la lista de resultados con el formato
         }
         return result;
     }
