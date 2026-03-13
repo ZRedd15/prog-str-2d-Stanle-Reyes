@@ -25,4 +25,10 @@ public class PersonFileRepository {
         Files.writeString(filePath, line+System.lineSeparator(),StandardCharsets.UTF_8,
                 StandardOpenOption.APPEND);
     }
+
+    public void appendAllLines(List<String> lines) throws IOException {
+        Files.write(filePath, lines, StandardCharsets.UTF_8,
+                StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
 }

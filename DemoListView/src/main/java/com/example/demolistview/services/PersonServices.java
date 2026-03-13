@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PersonServices {
-    private PersonFileRepository repo = new PersonFileRepository();
+    private final PersonFileRepository repo = new PersonFileRepository();
 
     public List<String> loadDataForList() throws IOException {
         List<String> lines = repo.readAllLines(); //Recupera las lineas de archivo
@@ -32,12 +32,32 @@ public class PersonServices {
 
         repo.appendNewLine(nameNoComan+","+emailNoComan+","+edadNoComan);
     }
-    private void validatePerson(String nombre, String email, String edad){
+    public void updatePerson(int index, String name, String email, String edad) throws IOException {
+        List<String> lines = getAllCleanLines();
+        if (index == -1){
+            throw new IllegalArgumentException("El indice recibido es invalido");
+        }
+        lines.set(index,name+","+email+","+edad);
+        repo.appendAllLines(lines);
+    }
+
+    private List<String> getAllCleanLines() throws IOException {
+        List<String> lines = repo.readAllLines();
+        List<String> cleanLines = new ArrayList<>();
+        for(String line : lines){
+            if (line != null && !line.isBlank()){
+                cleanLines.add(line);
+            }
+        }
+        return cleanLines;
+    }
+
+    public void validatePerson(String nombre, String email, String edad){
         if (nombre.isBlank() || nombre.isEmpty() || nombre.length()<3 ) {
             throw new IllegalArgumentException("El nombre no cumple con los estandares");
         }
         String em = (email==null) ? "" : email.trim();
-        if (em.isEmpty() || !em.contains("@") || !em.contains(".")){
+        if (em.isBlank() || !em.contains("@") || !em.contains(".")){
             throw new IllegalArgumentException("El email no es valido");
         }
         try {

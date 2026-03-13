@@ -31,6 +31,10 @@ public class AppController {
     @FXML
     public void initialize(){ //Se ejecuta al inicio en cuanto se cargue el controller
         //Inicializar ListView
+        listView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) ->{
+            loadDataToForm(newValue);
+                }
+        );
         listView.setItems(data);
         loadFromFile();
     }
@@ -42,12 +46,12 @@ public class AppController {
             String email = txtEmail.getText();
             String edad = txtEdad.getText();
             service.addPerson(name,email,edad);
+            loadFromFile();
             lblMsg.setText("Persona agregada con exito ");
             lblMsg.setStyle("-fx-text-fill: green");
             txtName.clear();
             txtEmail.clear();
             txtEdad.clear();
-            loadFromFile();
         }catch (IOException e){
             lblMsg.setText("Hubo un error ");
             lblMsg.setStyle("-fx-text-fill: red");
@@ -56,6 +60,31 @@ public class AppController {
             lblMsg.setStyle("-fx-text-fill: red");
         }
     }
+
+    @FXML
+    public void onUpdate(){
+        int index = listView.getSelectionModel().getSelectedIndex();
+        String name = txtName.getText();
+        String email = txtEmail.getText();
+        String edad = txtEdad.getText();
+        try{
+            service.updatePerson(index, name, email, edad);
+            service.validatePerson(name, email, edad);
+            loadFromFile();
+            lblMsg.setText("Persona agregada con exito ");
+            lblMsg.setStyle("-fx-text-fill: green");
+            txtName.clear();
+            txtEmail.clear();
+            txtEdad.clear();
+        }catch (IOException e){
+            lblMsg.setText("Hubo un error ");
+            lblMsg.setStyle("-fx-text-fill: red");
+        }catch (IllegalArgumentException ex){
+            lblMsg.setText(ex.getMessage());
+            lblMsg.setStyle("-fx-text-fill: red");
+        }
+    }
+
     private void loadFromFile(){
         try{
             List<String> items = service.loadDataForList();
@@ -67,4 +96,15 @@ public class AppController {
             lblMsg.setStyle("-fx-text-fill: red");
         }
     }
+
+    private void loadDataToForm(String item){
+        if (item == null || item.isBlank()){
+            return;
+        }
+        String[] parts = item.split("-");
+        txtName.setText(parts[0]); //Corresponde a la parte del nombre
+        txtEmail.setText(parts[1]); //Corresponde a la parte del email
+        txtEdad.setText(parts[2]); //Corresponde a la parte de
+    }
+
 }
