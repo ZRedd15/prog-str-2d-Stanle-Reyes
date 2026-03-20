@@ -22,6 +22,8 @@ public class AppController {
     private TextField txtEmail;
     @FXML
     private TextField txtEdad;
+    @FXML
+    private TextField txtBusqueda;
 
     @FXML
     private final ObservableList<String> data = FXCollections.observableArrayList();
@@ -31,12 +33,34 @@ public class AppController {
     @FXML
     public void initialize(){ //Se ejecuta al inicio en cuanto se cargue el controller
         //Inicializar ListView
+        loadFromFile();
+        txtBusqueda.textProperty().addListener(
+                (obs, old, newValue)->{
+                    filterList(newValue);
+                }
+        );
         listView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) ->{
             loadDataToForm(newValue);
                 }
         );
         listView.setItems(data);
-        loadFromFile();
+    }
+
+    private void filterList(String dato) {
+        if (dato == null || dato.isEmpty()){
+            initialize();
+            return;
+        }
+        ObservableList<String> finalList = FXCollections.observableArrayList();
+        String lower = dato.toLowerCase();
+        for (String item : data){
+            String[] parts = item.split("-", -1);
+            String email = parts[1].trim().toLowerCase();
+            if (email.contains(lower)){
+                finalList.add(item);
+            }
+        }
+        listView.setItems(finalList);
     }
 
     @FXML
@@ -83,6 +107,27 @@ public class AppController {
             lblMsg.setText(ex.getMessage());
             lblMsg.setStyle("-fx-text-fill: red");
         }
+    }
+
+    @FXML
+    public void onDelete(){
+        int index = listView.getSelectionModel().getSelectedIndex();
+        try{
+            service.deletePerson(index);
+            loadFromFile();
+            lblMsg.setText("Persona eliminada correctamente");
+            lblMsg.setStyle("-fx-text-fill: green");
+            txtName.clear();
+            txtEmail.clear();
+            txtEdad.clear();
+        }catch (IOException e){
+            lblMsg.setText("Hubo un error en el archivo");
+            lblMsg.setStyle("-fx-text-fill: red");
+        }
+    }
+
+    public void onReload(){
+        loadFromFile();
     }
 
     private void loadFromFile(){
